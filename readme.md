@@ -17,6 +17,7 @@ C. For performance API testing
 npx playwright test performanceapi.demo.spec.ts
 
 ### 3. Explaination
-a. for UI use page object model
-b. for API just know the design of endpoint api to write automation script
-c. for performance test just performance api after write automation api script
+a. For UI use page object model
+b. For API just know the design of endpoint api to write automation script
+c. For performance test just performance api after write automation api script
+d. For integration ci cd , will write file yaml and work with developer

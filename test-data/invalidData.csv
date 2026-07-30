@@ -1,0 +1,3 @@
+username,password,expected,run
+abcdefefefefefefe,Password123!,fail,true
+a_user_123456,abcededede!,fail,true

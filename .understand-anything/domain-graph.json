@@ -1,0 +1,620 @@
+{
+  "metadata": {
+    "projectName": "Playwright TypeScript Testing Suite",
+    "targetApplication": "SauceDemo Web Application",
+    "analysisDate": "2026-05-26",
+    "domains": 4,
+    "businessFlows": 4,
+    "totalSteps": 23
+  },
+  "domains": [
+    {
+      "id": "domain-auth",
+      "name": "User Authentication Testing",
+      "description": "Testing user login functionality including valid and invalid credential scenarios",
+      "purpose": "Validate that the SauceDemo application correctly handles user authentication attempts",
+      "relatedFlows": ["flow-login-success", "flow-login-failure"]
+    },
+    {
+      "id": "domain-datamgmt",
+      "name": "Test Data Management",
+      "description": "Unified system for reading and managing test data from multiple file formats",
+      "purpose": "Provide a centralized interface for accessing test data from JSON, CSV, and Excel sources",
+      "relatedFlows": ["flow-data-pipeline"]
+    },
+    {
+      "id": "domain-pageobject",
+      "name": "Page Object Abstraction",
+      "description": "Encapsulation of UI selectors and page interactions following the Page Object Model pattern",
+      "purpose": "Separate test logic from UI implementation details and improve test maintainability",
+      "relatedFlows": ["flow-login-success", "flow-login-failure"]
+    },
+    {
+      "id": "domain-testinfra",
+      "name": "Test Infrastructure & Execution",
+      "description": "Multi-browser test execution framework and test orchestration",
+      "purpose": "Execute tests across multiple browsers (Chrome, Firefox, Safari) and manage test lifecycle",
+      "relatedFlows": ["flow-browser-execution"]
+    }
+  ],
+  "businessFlows": [
+    {
+      "id": "flow-login-success",
+      "name": "Login Success Flow (Happy Path)",
+      "description": "User successfully authenticates with valid credentials and gains access to the application",
+      "domain": "domain-auth",
+      "startStep": "step-navigate-login",
+      "endStep": "step-verify-inventory",
+      "dataInputs": ["valid_user.username", "valid_user.password"],
+      "dataOutputs": ["authenticated_session", "inventory_page_access"],
+      "successCriteria": "User is redirected to inventory.html and can access application features",
+      "steps": ["step-navigate-login", "step-enter-username", "step-enter-password", "step-click-login", "step-verify-inventory"]
+    },
+    {
+      "id": "flow-login-failure",
+      "name": "Login Failure Flow (Sad Path)",
+      "description": "User authentication fails due to invalid credentials or locked account",
+      "domain": "domain-auth",
+      "startStep": "step-navigate-login",
+      "endStep": "step-verify-error",
+      "dataInputs": ["invalid_user.username", "invalid_user.password"],
+      "dataOutputs": ["error_message", "session_rejected"],
+      "successCriteria": "Error message is displayed and user remains on login page",
+      "steps": ["step-navigate-login", "step-enter-invalid-username", "step-enter-invalid-password", "step-click-login", "step-verify-error"]
+    },
+    {
+      "id": "flow-data-pipeline",
+      "name": "Test Data Pipeline",
+      "description": "Load, parse, and deliver test data to test cases from multiple source formats",
+      "domain": "domain-datamgmt",
+      "startStep": "step-identify-source",
+      "endStep": "step-return-data",
+      "dataInputs": ["file_path", "sheet_name_optional"],
+      "dataOutputs": ["parsed_test_data", "credential_objects"],
+      "successCriteria": "Data is correctly parsed regardless of source format and available to tests",
+      "steps": ["step-identify-source", "step-load-json", "step-load-csv", "step-load-excel", "step-parse-data", "step-return-data"]
+    },
+    {
+      "id": "flow-browser-execution",
+      "name": "Multi-Browser Test Execution",
+      "description": "Execute test suites across multiple browser contexts sequentially",
+      "domain": "domain-testinfra",
+      "startStep": "step-init-browser",
+      "endStep": "step-report-results",
+      "dataInputs": ["browser_type", "test_suite"],
+      "dataOutputs": ["test_results", "execution_report"],
+      "successCriteria": "All tests execute successfully in each browser and results are aggregated",
+      "steps": ["step-init-browser", "step-create-context", "step-create-page", "step-execute-tests", "step-close-context", "step-report-results"]
+    }
+  ],
+  "processSteps": [
+    {
+      "id": "step-navigate-login",
+      "name": "Navigate to Login Page",
+      "description": "Open the SauceDemo login page in the browser",
+      "operation": "LoginPage.gotoLoginPage()",
+      "implementation": "page.goto('https://www.saucedemo.com/')",
+      "inputs": ["page_object"],
+      "outputs": ["login_page_loaded"],
+      "errorHandling": "Timeout or network error leads to test failure",
+      "belongsToFlows": ["flow-login-success", "flow-login-failure"]
+    },
+    {
+      "id": "step-enter-username",
+      "name": "Enter Valid Username",
+      "description": "Fill the username field with valid credentials",
+      "operation": "LoginPage.login(username, password)",
+      "implementation": "username.fill(valid_user.username)",
+      "inputs": ["username_locator", "valid_username"],
+      "outputs": ["username_filled"],
+      "errorHandling": "Element not found or interaction timeout",
+      "belongsToFlows": ["flow-login-success"]
+    },
+    {
+      "id": "step-enter-password",
+      "name": "Enter Valid Password",
+      "description": "Fill the password field with valid credentials",
+      "operation": "LoginPage.login(username, password)",
+      "implementation": "password.fill(valid_user.password)",
+      "inputs": ["password_locator", "valid_password"],
+      "outputs": ["password_filled"],
+      "errorHandling": "Element not found or interaction timeout",
+      "belongsToFlows": ["flow-login-success"]
+    },
+    {
+      "id": "step-enter-invalid-username",
+      "name": "Enter Invalid Username",
+      "description": "Fill the username field with invalid/locked account credentials",
+      "operation": "LoginPage.login(username, password)",
+      "implementation": "username.fill(invalid_user.username)",
+      "inputs": ["username_locator", "invalid_username"],
+      "outputs": ["username_filled"],
+      "errorHandling": "Element not found or interaction timeout",
+      "belongsToFlows": ["flow-login-failure"]
+    },
+    {
+      "id": "step-enter-invalid-password",
+      "name": "Enter Invalid Password",
+      "description": "Fill the password field with invalid credentials",
+      "operation": "LoginPage.login(username, password)",
+      "implementation": "password.fill(invalid_user.password)",
+      "inputs": ["password_locator", "invalid_password"],
+      "outputs": ["password_filled"],
+      "errorHandling": "Element not found or interaction timeout",
+      "belongsToFlows": ["flow-login-failure"]
+    },
+    {
+      "id": "step-click-login",
+      "name": "Click Login Button",
+      "description": "Submit the login form by clicking the login button",
+      "operation": "LoginPage.login(username, password)",
+      "implementation": "loginButton.click()",
+      "inputs": ["login_button_locator"],
+      "outputs": ["login_submitted", "form_processing"],
+      "errorHandling": "Button not clickable or not found",
+      "belongsToFlows": ["flow-login-success", "flow-login-failure"]
+    },
+    {
+      "id": "step-verify-inventory",
+      "name": "Verify Successful Navigation to Inventory",
+      "description": "Confirm user is redirected to inventory page after successful login",
+      "operation": "LoginPage.verifyLoginSuccess()",
+      "implementation": "expect(page).toHaveURL('https://www.saucedemo.com/inventory.html')",
+      "inputs": ["current_page_url"],
+      "outputs": ["login_success_verified", "authenticated_session"],
+      "errorHandling": "URL mismatch indicates authentication failure",
+      "belongsToFlows": ["flow-login-success"]
+    },
+    {
+      "id": "step-verify-error",
+      "name": "Verify Error Message Displayed",
+      "description": "Confirm error message is visible after failed login attempt",
+      "operation": "expect(loginPage.errorMessage).toBeVisible()",
+      "implementation": "Check [data-test='error'] element visibility",
+      "inputs": ["error_message_locator"],
+      "outputs": ["error_displayed", "login_rejected"],
+      "errorHandling": "Error message not visible indicates application issue",
+      "belongsToFlows": ["flow-login-failure"]
+    },
+    {
+      "id": "step-identify-source",
+      "name": "Identify Data Source Format",
+      "description": "Determine file type based on file extension",
+      "operation": "readData(filePath, sheetName?)",
+      "implementation": "path.extname(filePath).toLocaleLowerCase()",
+      "inputs": ["file_path"],
+      "outputs": ["file_extension", "source_type"],
+      "errorHandling": "Unsupported file type throws error",
+      "belongsToFlows": ["flow-data-pipeline"]
+    },
+    {
+      "id": "step-load-json",
+      "name": "Load JSON Test Data",
+      "description": "Read and parse JSON test data file",
+      "operation": "readData(filePath) for .json files",
+      "implementation": "readFileSync(filePath, 'utf8'); JSON.parse(data)",
+      "inputs": ["json_file_path"],
+      "outputs": ["parsed_json_object", "login_credentials"],
+      "errorHandling": "File not found or invalid JSON structure",
+      "belongsToFlows": ["flow-data-pipeline"]
+    },
+    {
+      "id": "step-load-csv",
+      "name": "Load CSV Test Data",
+      "description": "Read and parse CSV test data file",
+      "operation": "readData(filePath) for .csv files",
+      "implementation": "readCSV(filePath) using csv-parse library",
+      "inputs": ["csv_file_path"],
+      "outputs": ["parsed_csv_records", "credential_rows"],
+      "errorHandling": "File not found or malformed CSV",
+      "belongsToFlows": ["flow-data-pipeline"]
+    },
+    {
+      "id": "step-load-excel",
+      "name": "Load Excel Test Data",
+      "description": "Read and parse Excel workbook sheet",
+      "operation": "readData(filePath, sheetName) for .xlsx files",
+      "implementation": "readExcel(filePath, sheetName) using XLSX library",
+      "inputs": ["excel_file_path", "sheet_name"],
+      "outputs": ["parsed_excel_data", "typed_login_data"],
+      "errorHandling": "Sheet not found or file corruption",
+      "belongsToFlows": ["flow-data-pipeline"]
+    },
+    {
+      "id": "step-parse-data",
+      "name": "Parse and Transform Data",
+      "description": "Convert raw file data into structured credential objects",
+      "operation": "Data transformation and validation",
+      "implementation": "Map parsed data to LoginData type structure",
+      "inputs": ["raw_file_content"],
+      "outputs": ["structured_credentials", "validated_data"],
+      "errorHandling": "Missing required fields or type mismatch",
+      "belongsToFlows": ["flow-data-pipeline"]
+    },
+    {
+      "id": "step-return-data",
+      "name": "Return Parsed Test Data",
+      "description": "Make parsed data available to test case",
+      "operation": "Return from readData() function",
+      "implementation": "Return parsed credential objects",
+      "inputs": ["structured_credentials"],
+      "outputs": ["test_data_ready", "login_credentials_available"],
+      "errorHandling": "Data injection failure into test",
+      "belongsToFlows": ["flow-data-pipeline"]
+    },
+    {
+      "id": "step-init-browser",
+      "name": "Initialize Browser Instance",
+      "description": "Create browser context for test execution",
+      "operation": "Playwright test framework initialization",
+      "implementation": "Browser fixture setup in @playwright/test",
+      "inputs": ["browser_type_config"],
+      "outputs": ["browser_instance", "context_ready"],
+      "errorHandling": "Browser launch failure prevents test execution",
+      "belongsToFlows": ["flow-browser-execution"]
+    },
+    {
+      "id": "step-create-context",
+      "name": "Create Browser Context",
+      "description": "Establish isolated browser context for test",
+      "operation": "browser.newContext()",
+      "implementation": "Create new browser context with default options",
+      "inputs": ["browser_instance"],
+      "outputs": ["context_created", "context_id"],
+      "errorHandling": "Context creation timeout",
+      "belongsToFlows": ["flow-browser-execution"]
+    },
+    {
+      "id": "step-create-page",
+      "name": "Create Page Instance",
+      "description": "Create new page within browser context",
+      "operation": "context.newPage()",
+      "implementation": "Instantiate Page object for test",
+      "inputs": ["browser_context"],
+      "outputs": ["page_instance", "page_loaded"],
+      "errorHandling": "Page creation timeout",
+      "belongsToFlows": ["flow-browser-execution"]
+    },
+    {
+      "id": "step-execute-tests",
+      "name": "Execute Test Suite",
+      "description": "Run all test cases in the test file",
+      "operation": "test() function execution",
+      "implementation": "Execute test('valid login test') and test('invalid login test')",
+      "inputs": ["test_functions", "page_instance"],
+      "outputs": ["test_results", "pass_fail_status"],
+      "errorHandling": "Test failure, timeout, or assertion error",
+      "belongsToFlows": ["flow-browser-execution"]
+    },
+    {
+      "id": "step-close-context",
+      "name": "Close Browser Context",
+      "description": "Clean up and close browser context after tests",
+      "operation": "context.close()",
+      "implementation": "Release resources and close context",
+      "inputs": ["browser_context"],
+      "outputs": ["context_closed", "resources_freed"],
+      "errorHandling": "Graceful cleanup failure",
+      "belongsToFlows": ["flow-browser-execution"]
+    },
+    {
+      "id": "step-report-results",
+      "name": "Generate Test Report",
+      "description": "Aggregate and report test execution results",
+      "operation": "Report generation",
+      "implementation": "Playwright HTML report generation",
+      "inputs": ["test_results"],
+      "outputs": ["execution_report", "result_summary"],
+      "errorHandling": "Report generation failure",
+      "belongsToFlows": ["flow-browser-execution"]
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-auth-to-pageobj",
+      "source": "domain-auth",
+      "target": "domain-pageobject",
+      "type": "dependency",
+      "description": "Authentication tests depend on PageObject for UI interaction"
+    },
+    {
+      "id": "edge-datamgmt-to-auth",
+      "source": "domain-datamgmt",
+      "target": "domain-auth",
+      "type": "dataflow",
+      "description": "Test data flows from data management to authentication tests",
+      "data": ["credentials", "test_scenarios"]
+    },
+    {
+      "id": "edge-testinfra-to-all",
+      "source": "domain-testinfra",
+      "target": "domain-auth",
+      "type": "orchestration",
+      "description": "Test infrastructure orchestrates execution of all tests"
+    },
+    {
+      "id": "edge-login-success-to-inventory",
+      "source": "step-click-login",
+      "target": "step-verify-inventory",
+      "type": "control",
+      "description": "After login submission, verify success by checking URL",
+      "condition": "Login succeeds without error"
+    },
+    {
+      "id": "edge-login-failure-to-error",
+      "source": "step-click-login",
+      "target": "step-verify-error",
+      "type": "control",
+      "description": "After failed login, verify error message display",
+      "condition": "Login fails with invalid credentials"
+    },
+    {
+      "id": "edge-identify-to-json",
+      "source": "step-identify-source",
+      "target": "step-load-json",
+      "type": "control",
+      "description": "If file extension is .json, load JSON",
+      "condition": "ext === '.json'"
+    },
+    {
+      "id": "edge-identify-to-csv",
+      "source": "step-identify-source",
+      "target": "step-load-csv",
+      "type": "control",
+      "description": "If file extension is .csv, load CSV",
+      "condition": "ext === '.csv'"
+    },
+    {
+      "id": "edge-identify-to-excel",
+      "source": "step-identify-source",
+      "target": "step-load-excel",
+      "type": "control",
+      "description": "If file extension is .xlsx, load Excel",
+      "condition": "ext === '.xlsx'"
+    },
+    {
+      "id": "edge-load-to-parse",
+      "source": "step-load-json",
+      "target": "step-parse-data",
+      "type": "dataflow",
+      "description": "Loaded data flows to parsing step"
+    },
+    {
+      "id": "edge-csv-to-parse",
+      "source": "step-load-csv",
+      "target": "step-parse-data",
+      "type": "dataflow",
+      "description": "CSV records flow to parsing step"
+    },
+    {
+      "id": "edge-excel-to-parse",
+      "source": "step-load-excel",
+      "target": "step-parse-data",
+      "type": "dataflow",
+      "description": "Excel data flows to parsing step"
+    },
+    {
+      "id": "edge-parse-to-return",
+      "source": "step-parse-data",
+      "target": "step-return-data",
+      "type": "control",
+      "description": "Parsed data is returned to test"
+    },
+    {
+      "id": "edge-data-to-login",
+      "source": "step-return-data",
+      "target": "step-enter-username",
+      "type": "dataflow",
+      "description": "Test data credentials injected into login step",
+      "data": ["username", "password"]
+    },
+    {
+      "id": "edge-init-to-context",
+      "source": "step-init-browser",
+      "target": "step-create-context",
+      "type": "control",
+      "description": "Browser initialized before creating context"
+    },
+    {
+      "id": "edge-context-to-page",
+      "source": "step-create-context",
+      "target": "step-create-page",
+      "type": "control",
+      "description": "Context created before page instantiation"
+    },
+    {
+      "id": "edge-page-to-tests",
+      "source": "step-create-page",
+      "target": "step-execute-tests",
+      "type": "dataflow",
+      "description": "Page instance injected into test execution"
+    },
+    {
+      "id": "edge-tests-to-close",
+      "source": "step-execute-tests",
+      "target": "step-close-context",
+      "type": "control",
+      "description": "Context closed after test execution completes"
+    },
+    {
+      "id": "edge-close-to-report",
+      "source": "step-close-context",
+      "target": "step-report-results",
+      "type": "control",
+      "description": "Results gathered and reported after cleanup"
+    },
+    {
+      "id": "edge-flow-login-success-parent",
+      "source": "flow-login-success",
+      "target": "domain-auth",
+      "type": "composition",
+      "description": "Login success flow belongs to authentication domain"
+    },
+    {
+      "id": "edge-flow-login-failure-parent",
+      "source": "flow-login-failure",
+      "target": "domain-auth",
+      "type": "composition",
+      "description": "Login failure flow belongs to authentication domain"
+    },
+    {
+      "id": "edge-flow-data-parent",
+      "source": "flow-data-pipeline",
+      "target": "domain-datamgmt",
+      "type": "composition",
+      "description": "Data pipeline flow belongs to data management domain"
+    },
+    {
+      "id": "edge-flow-browser-parent",
+      "source": "flow-browser-execution",
+      "target": "domain-testinfra",
+      "type": "composition",
+      "description": "Browser execution flow belongs to test infrastructure domain"
+    }
+  ],
+  "dataEntities": [
+    {
+      "id": "data-credentials",
+      "name": "User Credentials",
+      "type": "object",
+      "structure": {
+        "username": "string",
+        "password": "string"
+      },
+      "sources": ["loginData.json", "test-data.csv", "test-data.xlsx"],
+      "consumers": ["LoginPage.login()"]
+    },
+    {
+      "id": "data-login-data",
+      "name": "Login Data Record",
+      "type": "object",
+      "structure": {
+        "username": "string",
+        "password": "string",
+        "expected": "string (success|failure)",
+        "run": "string (yes|no)"
+      },
+      "sources": ["Excel sheets", "CSV files"],
+      "consumers": ["Test cases"]
+    },
+    {
+      "id": "data-session",
+      "name": "Authenticated Session",
+      "type": "session",
+      "structure": {
+        "authenticated": "boolean",
+        "user": "string",
+        "cookies": "object"
+      },
+      "sources": ["Login success step"],
+      "consumers": ["Page navigation", "Inventory access"]
+    },
+    {
+      "id": "data-error",
+      "name": "Error Message",
+      "type": "string",
+      "examples": ["Username and password do not match any user in this service", "This user has been locked out"],
+      "sources": ["SauceDemo application"],
+      "consumers": ["Error verification step"]
+    }
+  ],
+  "keyArtifacts": [
+    {
+      "name": "LoginPage.ts",
+      "type": "PageObject",
+      "role": "Encapsulates all login page interactions and selectors",
+      "methods": ["gotoLoginPage()", "login(username, password)", "verifyLoginSuccess()"]
+    },
+    {
+      "name": "login_test.spec.ts",
+      "type": "TestSuite",
+      "role": "Contains test cases for valid and invalid login scenarios",
+      "testCases": ["valid login test", "invalid login test"]
+    },
+    {
+      "name": "dataReader.ts",
+      "type": "Utility",
+      "role": "Unified interface for reading multiple data formats",
+      "function": "readData(filePath, sheetName?)"
+    },
+    {
+      "name": "csvReader.ts",
+      "type": "Utility",
+      "role": "Parses CSV files into records",
+      "function": "readCSV(filePath)"
+    },
+    {
+      "name": "excelReader.ts",
+      "type": "Utility",
+      "role": "Parses Excel workbooks with type safety",
+      "function": "readExcel(filePath, sheetName)"
+    },
+    {
+      "name": "loginData.json",
+      "type": "TestData",
+      "role": "Provides valid and invalid credential pairs",
+      "content": "valid_user and invalid_user credentials"
+    }
+  ],
+  "actors": [
+    {
+      "id": "actor-tester",
+      "name": "QA Tester",
+      "role": "Executes tests and verifies application behavior",
+      "interactions": ["Triggers test execution", "Reviews test results"]
+    },
+    {
+      "id": "actor-ci-system",
+      "name": "CI/CD System",
+      "role": "Automates test execution in continuous integration pipeline",
+      "interactions": ["Schedules test runs", "Collects results", "Reports failures"]
+    },
+    {
+      "id": "actor-saucedemo",
+      "name": "SauceDemo Application",
+      "role": "Target system being tested",
+      "interactions": ["Responds to login requests", "Validates credentials", "Returns responses"]
+    }
+  ],
+  "businessRules": [
+    {
+      "id": "rule-valid-credentials",
+      "description": "Valid credentials must result in redirect to inventory page",
+      "affectedFlows": ["flow-login-success"],
+      "consequence": "User gains access to inventory"
+    },
+    {
+      "id": "rule-invalid-credentials",
+      "description": "Invalid credentials must result in error message display",
+      "affectedFlows": ["flow-login-failure"],
+      "consequence": "User remains on login page and cannot proceed"
+    },
+    {
+      "id": "rule-data-format-support",
+      "description": "System must support reading credentials from JSON, CSV, and Excel files",
+      "affectedFlows": ["flow-data-pipeline"],
+      "consequence": "Tests can use data from multiple sources"
+    },
+    {
+      "id": "rule-multi-browser-compatibility",
+      "description": "All tests must pass across Chrome, Firefox, and Safari browsers",
+      "affectedFlows": ["flow-browser-execution"],
+      "consequence": "Application reliability verified across browsers"
+    }
+  ],
+  "summary": {
+    "primaryDomain": "User Authentication Testing",
+    "criticalFlows": ["flow-login-success", "flow-login-failure"],
+    "integrationPoints": [
+      "PageObject pattern integration with test framework",
+      "Data pipeline integration with test execution",
+      "Multi-browser test orchestration"
+    ],
+    "keyInsights": [
+      "The project uses Page Object Model to separate UI details from test logic",
+      "Test data is flexibly sourced from multiple formats through a unified interface",
+      "Both happy path (valid login) and sad path (invalid login) scenarios are tested",
+      "The infrastructure supports parallel execution across multiple browsers"
+    ]
+  }
+}

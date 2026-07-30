@@ -15,7 +15,7 @@ npx playwright test userplaceOrderwithNoteim.spec.ts: this scenario is test user
 B. For API testing
 npx playwright test apiAuto.demo.spec.ts 
 C. For performance API testing
-npx playwright test performanceapi.demo.spec.ts
+npx playwright test performanceapi.demo.spec.ts (test with concurrent 20 user send request in 60 seconds and check throughput ~ how many requests per time in system)
 
 ### 3. Explaination
 a. For UI use page object model

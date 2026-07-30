@@ -9,6 +9,7 @@ export class LoginPage {
   readonly modalLoginButton: Locator;
   readonly samsungS6Link: Locator;
   readonly addToCartButton: Locator;
+  readonly cartButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -21,6 +22,8 @@ export class LoginPage {
     // Product locator
     this.samsungS6Link = page.getByRole('link', { name: 'Samsung galaxy s6' });
     this.addToCartButton = page.getByRole('link', { name: 'Add to cart' });
+    // Cart button locator
+    this.cartButton = page.getByText('Cart', { exact: true });
   }
 
   async gotoLoginForm() {
@@ -48,6 +51,7 @@ export class LoginPage {
 
     await this.addToCartButton.waitFor({ state: 'visible' });
     await this.addToCartButton.click();
+    await this.cartButton.click();
      // Wait for 5 seconds before closing
     await this.page.waitForTimeout(5000);
 

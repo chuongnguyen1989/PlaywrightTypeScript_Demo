@@ -9,8 +9,9 @@ npm i autocannon -g
 
 ### 2. Execution
 A. For UI testing
-npx playwright test login.demo.spec.ts
-npx playwright test login_case2.demo.spec.ts
+npx playwright test login.demo.spec.ts: this scenario is test user can login with valid user name password
+npx playwright test login_case2.demo.spec.ts: this scenario is test user cannot login with invalid username, password (edge case)
+npx playwright test userplaceOrderwithNoteim.spec.ts: this scenario is test user with no item can place order (edge case)
 B. For API testing
 npx playwright test apiAuto.demo.spec.ts 
 C. For performance API testing
